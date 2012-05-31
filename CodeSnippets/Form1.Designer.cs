@@ -34,24 +34,28 @@
 			this.contextMenuStripNodes = new System.Windows.Forms.ContextMenuStrip(this.components);
 			this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.linkLabelAddSnippet = new System.Windows.Forms.LinkLabel();
+			this.tabControl1 = new System.Windows.Forms.TabControl();
+			this.splitContainer1 = new System.Windows.Forms.SplitContainer();
 			this.contextMenuStripNodes.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+			this.splitContainer1.Panel1.SuspendLayout();
+			this.splitContainer1.Panel2.SuspendLayout();
+			this.splitContainer1.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// treeView1
 			// 
 			this.treeView1.AllowDrop = true;
-			this.treeView1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+			this.treeView1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.treeView1.FullRowSelect = true;
 			this.treeView1.HideSelection = false;
 			this.treeView1.Indent = 5;
-			this.treeView1.Location = new System.Drawing.Point(5, 5);
+			this.treeView1.Location = new System.Drawing.Point(0, 0);
 			this.treeView1.Name = "treeView1";
 			this.treeView1.ShowLines = false;
 			this.treeView1.ShowPlusMinus = false;
 			this.treeView1.ShowRootLines = false;
-			this.treeView1.Size = new System.Drawing.Size(286, 304);
+			this.treeView1.Size = new System.Drawing.Size(93, 288);
 			this.treeView1.TabIndex = 0;
 			this.treeView1.DragDrop += new System.Windows.Forms.DragEventHandler(this.treeView1_DragDrop);
 			this.treeView1.DragEnter += new System.Windows.Forms.DragEventHandler(this.treeView1_DragEnter);
@@ -100,15 +104,43 @@
 			this.linkLabelAddSnippet.Text = "Add";
 			this.linkLabelAddSnippet.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkLabelAddSnippet_LinkClicked);
 			// 
+			// tabControl1
+			// 
+			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.tabControl1.Location = new System.Drawing.Point(0, 0);
+			this.tabControl1.Name = "tabControl1";
+			this.tabControl1.SelectedIndex = 0;
+			this.tabControl1.Size = new System.Drawing.Size(183, 288);
+			this.tabControl1.TabIndex = 3;
+			// 
+			// splitContainer1
+			// 
+			this.splitContainer1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+			this.splitContainer1.Location = new System.Drawing.Point(8, 9);
+			this.splitContainer1.Name = "splitContainer1";
+			// 
+			// splitContainer1.Panel1
+			// 
+			this.splitContainer1.Panel1.Controls.Add(this.treeView1);
+			// 
+			// splitContainer1.Panel2
+			// 
+			this.splitContainer1.Panel2.Controls.Add(this.tabControl1);
+			this.splitContainer1.Size = new System.Drawing.Size(280, 288);
+			this.splitContainer1.SplitterDistance = 93;
+			this.splitContainer1.TabIndex = 4;
+			// 
 			// Form1
 			// 
 			this.AllowDrop = true;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(296, 330);
+			this.Controls.Add(this.splitContainer1);
 			this.Controls.Add(this.linkLabelAddSnippet);
 			this.Controls.Add(this.labelActiveApplication);
-			this.Controls.Add(this.treeView1);
 			this.Name = "Form1";
 			this.Padding = new System.Windows.Forms.Padding(5);
 			this.ShowIcon = false;
@@ -117,6 +149,10 @@
 			this.Text = "Code snippets";
 			this.Shown += new System.EventHandler(this.Form1_Shown);
 			this.contextMenuStripNodes.ResumeLayout(false);
+			this.splitContainer1.Panel1.ResumeLayout(false);
+			this.splitContainer1.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+			this.splitContainer1.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -129,6 +165,8 @@
 		private System.Windows.Forms.ContextMenuStrip contextMenuStripNodes;
 		private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
 		private System.Windows.Forms.LinkLabel linkLabelAddSnippet;
+		private System.Windows.Forms.TabControl tabControl1;
+		private System.Windows.Forms.SplitContainer splitContainer1;
 
 
 	}

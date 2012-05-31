@@ -27,6 +27,8 @@ namespace CodeSnippets
 		[DllImport("user32.dll", SetLastError = true)]
 		static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
 
+		private static Dictionary<string, Dictionary<int, string>> groupedCodeSnippets = new Dictionary<string, Dictionary<int, string>>();
+
 		public Form1()
 		{
 			InitializeComponent();
@@ -37,15 +39,248 @@ namespace CodeSnippets
 
 			if (Screen.AllScreens.Length > 1)
 				hasTwoOrMoreScreens = true;
+
+			RepopulateTabs();
 		}
 
+		private void RepopulateTabs()
+		{
+			tabControl1.TabPages.Clear();
+			groupedCodeSnippets.Clear();
+
+			if (!Directory.Exists("SnippetGroups"))
+				UserMessages.ShowWarningMessage("Cannot find folder SnippetGroups");
+			else
+				foreach (var dir in Directory.GetDirectories("SnippetGroups"))
+				{
+					var groupName = Path.GetFileName(dir);
+					foreach (var numfile in Directory.GetFiles(dir))
+					{
+						int tmpint;
+						if (int.TryParse(Path.GetFileNameWithoutExtension(numfile), out tmpint))
+							if (keyBindings.Keys.Contains(tmpint))
+							{
+								if (!groupedCodeSnippets.ContainsKey(groupName))
+									groupedCodeSnippets.Add(groupName, new Dictionary<int, string>());
+								groupedCodeSnippets[groupName].Add(tmpint, Path.GetFullPath(numfile)); //File.ReadAllText(numfile));
+							}
+					}
+				}
+
+			foreach (var groupname in groupedCodeSnippets.Keys)
+			{
+				tabControl1.TabPages.Add(groupname, groupname);
+				var tab = tabControl1.TabPages[groupname];
+				tab.Tag = groupedCodeSnippets[groupname];
+				TreeView tv = new TreeView();
+				tv.ShowNodeToolTips = true;
+				tv.ShowLines = false;
+				tv.ShowPlusMinus = false;
+				tv.ShowRootLines = false;
+				tv.FullRowSelect = true;
+				StylingInterop.SetTreeviewVistaStyle(tv);
+				tv.Dock = DockStyle.Fill;
+				foreach (var key in groupedCodeSnippets[groupname].Keys)
+				{
+					var filetext = "";
+					if (File.Exists(groupedCodeSnippets[groupname][key]))
+						filetext = File.ReadAllText(groupedCodeSnippets[groupname][key]);
+					var tmpstr = key + ": " + filetext;
+					TreeNode tn = new TreeNode(tmpstr) { Name = tmpstr, ToolTipText = tmpstr };
+					tv.Nodes.Add(tn);
+				}
+				tab.Controls.Add(tv);
+			}
+		}
+
+		private static Dictionary<int, Keys> keyBindings = new Dictionary<int, Keys>()
+		{
+			{ 0, Keys.D0 },
+			{ 1, Keys.D1 },
+			{ 2, Keys.D2 },
+			{ 3, Keys.D3 },
+			{ 4, Keys.D4 },
+			{ 5, Keys.D5 },
+			{ 6, Keys.D6 },
+			{ 7, Keys.D7 },
+			{ 8, Keys.D8 },
+			{ 9, Keys.D9 }
+		};
 		private void Form1_Shown(object sender, EventArgs e)
 		{
 			StylingInterop.SetTreeviewVistaStyle(treeView1);
+			//StylingInterop.SetVistaStyleOnControlHandle(
 			this.Location = new Point(WorkingArea.Right - this.Width, 0);
 			this.Height = WorkingArea.Height;
 			StartForegroundCheckTimer();
+
+			if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.Hotkey1, Win32Api.MOD_CONTROL + Win32Api.MOD_SHIFT, (uint)Keys.Oemtilde))
+				UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + Shift + `");
+			foreach (var keynum in keyBindings.Keys)
+			{
+				if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.MultipleHotkeyStart + keynum, Win32Api.MOD_CONTROL, (uint)keyBindings[keynum]))
+					UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + " + keynum);
+				if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.MultipleHotkeyStart + keyBindings.Count + keynum, Win32Api.MOD_CONTROL + Win32Api.MOD_SHIFT, (uint)keyBindings[keynum]))
+					UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + Shift + " + keynum);
+			}
 		}
+
+		protected override void WndProc(ref Message m)
+		{
+			if (m.Msg == Win32Api.WM_HOTKEY)
+			{
+				if (m.WParam == new IntPtr(Win32Api.Hotkey1))
+				{
+					if (tabControl1.TabPages.Count > 1)
+					{
+						int ind = tabControl1.SelectedIndex;
+						if (-1 == ind)
+							tabControl1.SelectedIndex = 0;
+						else if (ind < tabControl1.TabPages.Count - 1)
+							tabControl1.SelectedIndex++;
+						else
+							tabControl1.SelectedIndex = 0;
+						var tv = GetTabTreeview(tabControl1.SelectedTab);
+						if (tv != null)
+							tv.SelectedNode = null;
+					}
+				}
+				else
+					foreach (var keynum in keyBindings.Keys)
+						if (m.WParam == new IntPtr(Win32Api.MultipleHotkeyStart + keynum))
+						{
+							bool success = false;
+							if (tabControl1.SelectedTab is TabPage)
+							{
+								var tmpdict = tabControl1.SelectedTab.Tag as Dictionary<int, string>;
+								if (tmpdict != null)
+								{
+									success = true;
+									var filepath = tmpdict[keynum];
+									if (!File.Exists(filepath) || string.IsNullOrWhiteSpace(File.ReadAllText(filepath)))
+										UserMessages.ShowWarningMessage("Empty item assigned to hotkey Ctrl + " + keynum);
+									else
+									{
+										PasteTextInActiveWindow(File.ReadAllText(filepath));
+									}
+								}
+							}
+							if (!success)
+								UserMessages.ShowWarningMessage("Could not perform hotkey procedure");
+						}
+						else if (m.WParam == new IntPtr(Win32Api.MultipleHotkeyStart + keyBindings.Count + keynum))
+						{
+							bool success = false;
+							if (tabControl1.SelectedTab is TabPage)
+							{
+								var tmpdict = tabControl1.SelectedTab.Tag as Dictionary<int, string>;
+								if (tmpdict != null)
+								{
+									success = true;
+									//UserMessages.ShowInfoMessage("Changing item " + keynum + " to " + CopySelectedTextOfActiveWindow());
+									var selectedText = CopySelectedTextOfActiveWindow();
+									File.WriteAllText(tmpdict[keynum], selectedText);
+									RepopulateTabs();
+								}
+							}
+							if (!success)
+								UserMessages.ShowWarningMessage("Could not perform hotkey procedure");
+						}
+			}
+			base.WndProc(ref m);
+		}
+
+		private void PasteTextInActiveWindow(string text)
+		{
+			Clipboard.SetText(text);
+			SendKeys.SendWait("^(v)");
+		}
+
+		private string CopySelectedTextOfActiveWindow()
+		{
+			SendKeys.SendWait("^(c)");
+			return Clipboard.GetText();
+		}
+
+		private TreeView GetTabTreeview(TabPage tab)
+		{
+			if (tab == null)
+				return null;
+			if (tab.Controls.Count > 0)
+			{
+				var treeview = tab.Controls[0] as TreeView;
+				if (treeview != null)
+					return treeview;
+			}
+			return null;
+		}
+
+		/*[DllImport("user32.dll")]
+
+		static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+
+
+		[DllImport("kernel32.dll")]
+
+		static extern uint GetCurrentThreadId();
+
+		[DllImport("user32.dll")]
+
+		static extern bool AttachThreadInput(uint idAttach, uint idAttachTo,
+
+		bool fAttach);
+
+		[DllImport("user32.dll")]
+
+		static extern IntPtr GetFocus();
+
+		[DllImport("user32.dll")]
+
+		static extern int SendMessage(IntPtr hWnd, uint Msg, int wParam, StringBuilder lParam);
+
+		// second overload of SendMessage
+
+		[DllImport("user32.dll")]
+
+		static extern int SendMessage(IntPtr hWnd, uint Msg, out int wParam, out int lParam);
+
+		const uint WM_GETTEXT = 0x0D;
+
+		const uint WM_GETTEXTLENGTH = 0x0E;
+
+		const uint EM_GETSEL = 0xB0;
+		private void tmp()
+		{
+			IntPtr hWnd = GetForegroundWindow();
+
+			uint processId;
+
+			uint activeThreadId = GetWindowThreadProcessId(hWnd, out processId);
+
+			uint currentThreadId = GetCurrentThreadId();
+
+			AttachThreadInput(activeThreadId, currentThreadId, true);
+
+			IntPtr focusedHandle = GetFocus();
+
+			AttachThreadInput(activeThreadId, currentThreadId, false);
+
+			int len = SendMessage(focusedHandle, WM_GETTEXTLENGTH, 0, null);
+
+			StringBuilder sb = new StringBuilder(len);
+
+			int numChars = SendMessage(focusedHandle, WM_GETTEXT, len + 1, sb);
+
+			int start, next;
+
+			SendMessage(focusedHandle, EM_GETSEL, out next, out start);
+
+			if (next >= start)
+			{
+				string selectedText = sb.ToString().Substring(start, next - start);
+			}
+		}*/
 
 		private void PopulateSnippets()//ApplicationTypes apptype = ApplicationTypes.CSharp)
 		{
@@ -215,7 +450,7 @@ namespace CodeSnippets
 		//private bool MarkToHideOnMouseUp = false;
 		private void treeView1_MouseMove(object sender, MouseEventArgs e)
 		{
-			
+
 		}
 
 		private void AttemptCodepreviewShow()
@@ -228,7 +463,7 @@ namespace CodeSnippets
 
 			//if (DateTime.Now.Subtract(timeFirstShowRequest).TotalMilliseconds > 500)
 			//{
-				codePreview.Show();
+			codePreview.Show();
 			//}
 		}
 
