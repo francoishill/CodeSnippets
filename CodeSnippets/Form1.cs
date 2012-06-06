@@ -116,6 +116,8 @@ namespace CodeSnippets
 
 			if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.Hotkey1, Win32Api.MOD_CONTROL + Win32Api.MOD_SHIFT, (uint)Keys.Oemtilde))
 				UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + Shift + `");
+			if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.Hotkey2, Win32Api.MOD_CONTROL + Win32Api.MOD_SHIFT, (uint)Keys.OemMinus))
+				UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + Shift + -");
 			foreach (var keynum in keyBindings.Keys)
 			{
 				if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.MultipleHotkeyStart + keynum, Win32Api.MOD_CONTROL, (uint)keyBindings[keynum]))
@@ -125,6 +127,7 @@ namespace CodeSnippets
 			}
 		}
 
+		private bool HotkeysActive = true;
 		protected override void WndProc(ref Message m)
 		{
 			if (m.Msg == Win32Api.WM_HOTKEY)
@@ -145,47 +148,57 @@ namespace CodeSnippets
 							tv.SelectedNode = null;
 					}
 				}
+				else if (m.WParam == new IntPtr(Win32Api.Hotkey2))
+				{
+					HotkeysActive = !HotkeysActive;
+					tabControl1.Enabled = HotkeysActive;
+				}
 				else
-					foreach (var keynum in keyBindings.Keys)
-						if (m.WParam == new IntPtr(Win32Api.MultipleHotkeyStart + keynum))
-						{
-							bool success = false;
-							if (tabControl1.SelectedTab is TabPage)
+				{
+					if (HotkeysActive)
+					{
+						foreach (var keynum in keyBindings.Keys)
+							if (m.WParam == new IntPtr(Win32Api.MultipleHotkeyStart + keynum))
 							{
-								var tmpdict = tabControl1.SelectedTab.Tag as Dictionary<int, string>;
-								if (tmpdict != null)
+								bool success = false;
+								if (tabControl1.SelectedTab is TabPage)
 								{
-									success = true;
-									var filepath = tmpdict[keynum];
-									if (!File.Exists(filepath) || string.IsNullOrWhiteSpace(File.ReadAllText(filepath)))
-										UserMessages.ShowWarningMessage("Empty item assigned to hotkey Ctrl + " + keynum);
-									else
+									var tmpdict = tabControl1.SelectedTab.Tag as Dictionary<int, string>;
+									if (tmpdict != null)
 									{
-										PasteTextInActiveWindow(File.ReadAllText(filepath));
+										success = true;
+										var filepath = tmpdict[keynum];
+										if (!File.Exists(filepath) || string.IsNullOrWhiteSpace(File.ReadAllText(filepath)))
+											UserMessages.ShowWarningMessage("Empty item assigned to hotkey Ctrl + " + keynum);
+										else
+										{
+											PasteTextInActiveWindow(File.ReadAllText(filepath));
+										}
 									}
 								}
+								if (!success)
+									UserMessages.ShowWarningMessage("Could not perform hotkey procedure");
 							}
-							if (!success)
-								UserMessages.ShowWarningMessage("Could not perform hotkey procedure");
-						}
-						else if (m.WParam == new IntPtr(Win32Api.MultipleHotkeyStart + keyBindings.Count + keynum))
-						{
-							bool success = false;
-							if (tabControl1.SelectedTab is TabPage)
+							else if (m.WParam == new IntPtr(Win32Api.MultipleHotkeyStart + keyBindings.Count + keynum))
 							{
-								var tmpdict = tabControl1.SelectedTab.Tag as Dictionary<int, string>;
-								if (tmpdict != null)
+								bool success = false;
+								if (tabControl1.SelectedTab is TabPage)
 								{
-									success = true;
-									//UserMessages.ShowInfoMessage("Changing item " + keynum + " to " + CopySelectedTextOfActiveWindow());
-									var selectedText = CopySelectedTextOfActiveWindow();
-									File.WriteAllText(tmpdict[keynum], selectedText);
-									RepopulateTabs();
+									var tmpdict = tabControl1.SelectedTab.Tag as Dictionary<int, string>;
+									if (tmpdict != null)
+									{
+										success = true;
+										//UserMessages.ShowInfoMessage("Changing item " + keynum + " to " + CopySelectedTextOfActiveWindow());
+										var selectedText = CopySelectedTextOfActiveWindow();
+										File.WriteAllText(tmpdict[keynum], selectedText);
+										RepopulateTabs();
+									}
 								}
+								if (!success)
+									UserMessages.ShowWarningMessage("Could not perform hotkey procedure");
 							}
-							if (!success)
-								UserMessages.ShowWarningMessage("Could not perform hotkey procedure");
-						}
+					}
+				}
 			}
 			base.WndProc(ref m);
 		}
