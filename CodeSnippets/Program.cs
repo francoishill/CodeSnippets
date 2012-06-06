@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
+using System.Reflection;
+using System.Drawing;
 
 namespace CodeSnippets
 {
@@ -15,6 +17,8 @@ namespace CodeSnippets
 		{
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
+			typeof(Form).GetField("defaultIcon", BindingFlags.NonPublic | BindingFlags.Static)
+				.SetValue(null, new Icon(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("CodeSnippets.app.ico")));
 			Application.Run(new Form1());
 		}
 	}

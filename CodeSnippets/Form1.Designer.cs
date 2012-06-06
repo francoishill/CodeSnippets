@@ -143,7 +143,6 @@
 			this.Controls.Add(this.labelActiveApplication);
 			this.Name = "Form1";
 			this.Padding = new System.Windows.Forms.Padding(5);
-			this.ShowIcon = false;
 			this.ShowInTaskbar = false;
 			this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
 			this.Text = "Code snippets";

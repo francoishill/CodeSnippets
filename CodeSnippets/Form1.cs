@@ -48,6 +48,7 @@ namespace CodeSnippets
 			tabControl1.TabPages.Clear();
 			groupedCodeSnippets.Clear();
 
+			Environment.CurrentDirectory = Path.GetDirectoryName(Environment.GetCommandLineArgs()[0]);
 			if (!Directory.Exists("SnippetGroups"))
 				UserMessages.ShowWarningMessage("Cannot find folder SnippetGroups");
 			else
