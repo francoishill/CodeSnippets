@@ -111,21 +111,34 @@ namespace CodeSnippets
 		{
 			StylingInterop.SetTreeviewVistaStyle(treeView1);
 			//StylingInterop.SetVistaStyleOnControlHandle(
-			this.Location = new Point(WorkingArea.Right - this.Width, 0);
+			this.Location = new Point(WorkingArea.Right - this.Width, WorkingArea.Top);
 			this.Height = WorkingArea.Height;
 			StartForegroundCheckTimer();
 
-			if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.Hotkey1, Win32Api.MOD_CONTROL + Win32Api.MOD_SHIFT, (uint)Keys.Oemtilde))
-				UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + Shift + `");
-			if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.Hotkey2, Win32Api.MOD_CONTROL + Win32Api.MOD_SHIFT, (uint)Keys.OemMinus))
-				UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + Shift + -");
+			if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.Hotkey1, Win32Api.MOD_ALT + Win32Api.MOD_SHIFT, (uint)Keys.Oemtilde))
+				UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Alt + Shift + `");
+			if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.Hotkey2, Win32Api.MOD_ALT + Win32Api.MOD_SHIFT, (uint)Keys.OemMinus))
+				UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Alt + Shift + -");
 			foreach (var keynum in keyBindings.Keys)
 			{
-				if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.MultipleHotkeyStart + keynum, Win32Api.MOD_CONTROL, (uint)keyBindings[keynum]))
-					UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + " + keynum);
-				if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.MultipleHotkeyStart + keyBindings.Count + keynum, Win32Api.MOD_CONTROL + Win32Api.MOD_SHIFT, (uint)keyBindings[keynum]))
-					UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + Shift + " + keynum);
+				if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.MultipleHotkeyStart + keynum, Win32Api.MOD_CONTROL + Win32Api.MOD_ALT, (uint)keyBindings[keynum]))
+					UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + Alt + " + keynum);
+				if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.MultipleHotkeyStart + keyBindings.Count + keynum, Win32Api.MOD_ALT + Win32Api.MOD_SHIFT, (uint)keyBindings[keynum]))
+					UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Alt + Shift + " + keynum);
 			}
+
+			//OLD code for using Ctrl + Num AND Ctrl + Shift + Num
+			//if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.Hotkey1, Win32Api.MOD_CONTROL + Win32Api.MOD_SHIFT, (uint)Keys.Oemtilde))
+			//    UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + Shift + `");
+			//if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.Hotkey2, Win32Api.MOD_CONTROL + Win32Api.MOD_SHIFT, (uint)Keys.OemMinus))
+			//    UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + Shift + -");
+			//foreach (var keynum in keyBindings.Keys)
+			//{
+			//    if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.MultipleHotkeyStart + keynum, Win32Api.MOD_CONTROL, (uint)keyBindings[keynum]))
+			//        UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + " + keynum);
+			//    if (!Win32Api.RegisterHotKey(this.Handle, Win32Api.MultipleHotkeyStart + keyBindings.Count + keynum, Win32Api.MOD_CONTROL + Win32Api.MOD_SHIFT, (uint)keyBindings[keynum]))
+			//        UserMessages.ShowWarningMessage("CodeSnippets could not register hotkey Ctrl + Shift + " + keynum);
+			//}
 		}
 
 		private bool HotkeysActive = true;

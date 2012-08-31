@@ -28,7 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
-			this.scintilla1 = new ScintillaNet.Scintilla();
+			this.scintilla1 = new ScintillaNET.Scintilla();
 			((System.ComponentModel.ISupportInitialize)(this.scintilla1)).BeginInit();
 			this.SuspendLayout();
 			// 
@@ -72,6 +72,6 @@
 
 		#endregion
 
-		private ScintillaNet.Scintilla scintilla1;
+		private ScintillaNET.Scintilla scintilla1;
 	}
 }
