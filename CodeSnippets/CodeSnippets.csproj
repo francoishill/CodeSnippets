@@ -108,6 +108,9 @@
   <PropertyGroup>
     <ApplicationIcon>app.ico</ApplicationIcon>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>CodeSnippets.Program</StartupObject>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="ScintillaNet">
       <HintPath>..\..\..\..\..\..\..\Francois\Other\DLLs\ScintillaNET\ScintillaNet.dll</HintPath>
