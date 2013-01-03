@@ -9,10 +9,11 @@ using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using System.IO;
+using SharedClasses;
 
 namespace CodeSnippets
 {
-	public partial class Form1 : Form
+	public partial class MainForm : Form
 	{
 		readonly TimeSpan checkForegroundInterval = TimeSpan.FromMilliseconds(500);
 		readonly string cCodeSnippetDir = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData).TrimEnd('\\') + "\\FJH\\CodeSnippets";
@@ -29,7 +30,7 @@ namespace CodeSnippets
 
 		private static Dictionary<string, Dictionary<int, string>> groupedCodeSnippets = new Dictionary<string, Dictionary<int, string>>();
 
-		public Form1()
+		public MainForm()
 		{
 			InitializeComponent();
 
@@ -629,6 +630,20 @@ namespace CodeSnippets
 			if (inputName != null && inputName != "")
 				allSnippets.Add(new CodeSnippet(appType, inputName, droppedText));
 			SetFilterOnApplicationList(appType);
+		}
+
+		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			this.Close();
+		}
+
+		private void aboutToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			AboutWindow2.ShowAboutWindow(new System.Collections.ObjectModel.ObservableCollection<DisplayItem>()
+			{
+				new DisplayItem("Author", "Francois Hill"),
+				new DisplayItem("Icon(s) obtained from", null)
+			});
 		}
 	}
 

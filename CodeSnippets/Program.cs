@@ -15,11 +15,13 @@ namespace CodeSnippets
 		[STAThread]
 		static void Main()
 		{
+			SharedClasses.AutoUpdating.CheckForUpdates_ExceptionHandler();
+
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			typeof(Form).GetField("defaultIcon", BindingFlags.NonPublic | BindingFlags.Static)
 				.SetValue(null, new Icon(System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("CodeSnippets.app.ico")));
-			Application.Run(new Form1());
+			Application.Run(new MainForm());
 		}
 	}
 }
