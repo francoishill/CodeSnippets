@@ -467,6 +467,9 @@ namespace CodeSnippets
 				treeView1.SelectedNode = node;
 			CodeSnippet snippet = node.Tag as CodeSnippet;
 			if (snippet == null) return;
+			codePreview.scintilla1.ConfigurationManager.Language = snippet.ApplicationType.ToString().ToLower();
+			codePreview.scintilla1.Text = snippet.Code;
+
 			Point pointToClient = this.PointToClient(new Point(this.Left, this.Top));
 			//codePreview.Location = new Point(this.Left - codePreview.Width, e.Location.Y - pointToClient.Y);
 			codePreview.Location = new Point(this.Left - codePreview.Width, hoverLocation.Y - pointToClient.Y);

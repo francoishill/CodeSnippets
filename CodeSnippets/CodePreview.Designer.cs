@@ -72,6 +72,6 @@
 
 		#endregion
 
-		private ScintillaNET.Scintilla scintilla1;
+		public ScintillaNET.Scintilla scintilla1;
 	}
 }
